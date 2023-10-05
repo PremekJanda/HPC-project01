@@ -1,5 +1,5 @@
 set title "NxN blocked matrix-matrix-multiplication performance comparison"
-set xlabel "Block size (N)"
+set xlabel "Block size"
 set ylabel "Performance percentage average"
 set grid
 
