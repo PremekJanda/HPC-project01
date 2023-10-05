@@ -25,31 +25,35 @@ extern int block_size;
  * On exit, A and B maintain their input values. */    
 void square_dgemm (int n, double* A, double* B, double* C)
 {
-  // int block_size = 2;
+  // First method
+  // int block_size = 10;
+  int i, j, k, i_b, j_b, k_b;
+  double tmp;
 
-  // // First method
-  // int i, j, k, i_b, j_b, k_b;
-  // double tmp;
+  // partitioning
+  for (i_b = 0; i_b < n; i_b += block_size) {
+    for (j_b = 0; j_b < n; j_b += block_size) {
+      for (k_b = 0; k_b < n; k_b += block_size) {
+        // conduct naive matrix multiplication
+        // min is used to prevent overflow
+        for (i = i_b; i < min(i_b+block_size, n); i++) {
+          for (j = j_b; j < min(j_b+block_size, n); j++) {
+            // load C[i][j]
+            tmp = C[i+j*n];
+            for (k = k_b; k < min(k_b+block_size, n); k++) {
+              tmp += A[i+k*n] * B[k+j*n];
+            }
+            // store C[i][j]
+            C[i+j*n] = tmp;
+          }
+        }
+      }
+    }
+  }
 
-  // for (i_b = 0; i_b < n; i_b += block_size) {
-  //   for (j_b = 0; j_b < n; j_b += block_size) {
-  //     for (k_b = 0; k_b < n; k_b += block_size) {
-  //       for (i = i_b; i < min(i_b+block_size, n); i++) {
-  //         for (j = j_b; j < min(j_b+block_size, n); j++) {
-  //           // load C[i][j]
-  //           tmp = C[i+j*n];
-  //           for (k = k_b; k < min(k_b+block_size, n); k++) {
-  //             tmp += A[i+k*n] * B[k+j*n];
-  //           }
-  //           // store C[i][j]
-  //           C[i+j*n] = tmp;
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
 
   // // Second method
+  // int block_size = 32;
   // int i, j, k, j_b, k_b;
   // double tmp;
 
@@ -66,21 +70,24 @@ void square_dgemm (int n, double* A, double* B, double* C)
   //   }
   // }
 
-  // Third method
-  int i, j, k, i_b, j_b, k_b;
 
-  for (i_b = 0; i_b < n; i_b += block_size) {
-    for (j_b = 0; j_b < n; j_b += block_size) {
-      for (k_b = 0; k_b < n; k_b += block_size) {
-        for (i = i_b; i < min(i_b+block_size, n); i++) {
-          for (j = j_b; j < min(j_b+block_size, n); j++) {
-            for (k = k_b; k < min(k_b+block_size, n); k++) {
-              C[i+j*n] += A[i+k*n] * B[k+j*n];
-            }
-          }
-        }
-      }
-    }
-  }
+
+  // // Third method
+  // int block_size = 16;
+  // int i, j, k, i_b, j_b, k_b;
+
+  // for (i_b = 0; i_b < n; i_b += block_size) {
+  //   for (j_b = 0; j_b < n; j_b += block_size) {
+  //     for (k_b = 0; k_b < n; k_b += block_size) {
+  //       for (i = i_b; i < min(i_b+block_size, n); i++) {
+  //         for (j = j_b; j < min(j_b+block_size, n); j++) {
+  //           for (k = k_b; k < min(k_b+block_size, n); k++) {
+  //             C[i+j*n] += A[i+k*n] * B[k+j*n];
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
 }
